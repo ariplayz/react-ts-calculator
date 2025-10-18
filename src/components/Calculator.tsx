@@ -1,13 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-// Helper: Token types for a small expression evaluator (no eval)
+
 type NumToken = { type: 'num'; value: number }
 type OpToken = { type: 'op'; op: '+' | '-' | '×' | '÷' }
 type Token = NumToken | OpToken
 
 const isOperator = (c: string): c is OpToken['op'] => ['+', '-', '×', '÷'].includes(c)
 
-// Shunting-yard to convert infix tokens to RPN
 function toRPN(tokens: Token[]): Token[] {
   const output: Token[] = []
   const ops: OpToken[] = []
@@ -17,7 +16,7 @@ function toRPN(tokens: Token[]): Token[] {
     if (t.type === 'num') {
       output.push(t)
     } else {
-      // pop while the operator at the top of the operator stack has greater precedence
+
       while (ops.length && prec[ops[ops.length - 1].op] >= prec[t.op]) {
         output.push(ops.pop()!)
       }
@@ -49,10 +48,10 @@ function evalRPN(rpn: Token[]): number {
 
 function formatNumber(n: number): string {
   if (!isFinite(n)) return 'Error'
-  // Avoid -0
+
   if (Object.is(n, -0)) n = 0
   const abs = Math.abs(n)
-  // Use up to 10 fraction digits to avoid floating artifacts
+
   const s = abs >= 1e12 || (abs !== 0 && abs < 1e-6)
     ? n.toExponential(6)
     : n.toLocaleString(undefined, { maximumFractionDigits: 10 })
@@ -131,12 +130,12 @@ export default function Calculator() {
   const inputOperator = useCallback((op: OpToken['op']) => {
     setTokens(prev => {
       const next: Token[] = [...prev]
-      // If last token is operator, replace it (operator change)
+
       if (next.length && next[next.length - 1].type === 'op') {
         next[next.length - 1] = { type: 'op', op }
         return next
       }
-      // Push current display as number
+
       const v = parseFloat(display)
       if (!isNaN(v)) next.push({ type: 'num', value: v })
       next.push({ type: 'op', op })
@@ -149,10 +148,10 @@ export default function Calculator() {
   const evaluate = useCallback(() => {
     setTokens(prev => {
       const seq: Token[] = [...prev]
-      // push current display number if needed
+
       const v = parseFloat(display)
       if (!isNaN(v)) seq.push({ type: 'num', value: v })
-      // avoid trailing operator
+
       if (seq.length && seq[seq.length - 1].type === 'op') seq.pop()
       if (!seq.length) {
         setJustEvaluated(true)
@@ -166,7 +165,7 @@ export default function Calculator() {
     })
   }, [display])
 
-  // Keyboard support
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const key = e.key
@@ -193,7 +192,7 @@ export default function Calculator() {
     return () => window.removeEventListener('keydown', handler)
   }, [backspace, clearAll, evaluate, inputDecimal, inputDigit, inputOperator])
 
-  // Build button grid
+
   const buttons = [
     { label: 'C', kind: 'action', onClick: clearAll, aria: 'Clear all' },
     { label: '±', kind: 'action', onClick: toggleSign, aria: 'Toggle sign' },
